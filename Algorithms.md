@@ -1,4 +1,4 @@
-````
+
 ## Table of Contents
 
 1. [Non-Modifying Sequence Operations](#non-modifying-sequence-operations)  
