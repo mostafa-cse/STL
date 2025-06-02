@@ -1,16 +1,16 @@
 
 ## Table of Contents
 
-1. [Non-Modifying Sequence Operations](#1.non-modifying-sequence-operations)
-2. [Modifying Sequence Operations](#modifying-sequence-operations)  
-3. [Heap Operations](#heap-operations)  
-4. [Sorting and Related Operations](#sorting-and-related-operations)  
-5. [Binary Search and Related Operations](#binary-search-and-related-operations)  
-6. [Merging and Set Operations](#merging-and-set-operations)  
-7. [Min/Max and Related](#minmax-and-related)  
-8. [Permutations and Combinations](#permutations-and-combinations)  
-9. [Miscellaneous Utilities](#miscellaneous-utilities)  
-10. [Deprecated or Removed](#deprecated-or-removed)  
+1. [Non-Modifying Sequence Operations](#1-non-modifying-sequence-operations)
+2. [Modifying Sequence Operations](#2-modifying-sequence-operations)  
+3. [Heap Operations](#3-heap-operations)  
+4. [Sorting and Related Operations](#4-sorting-and-related-operations)  
+5. [Binary Search and Related Operations](#5-binary-search-and-related-operations)  
+6. [Merging and Set Operations](#6-merging-and-set-operations)  
+7. [Min/Max and Related](#7-minmax-and-related)  
+8. [Permutations and Combinations](#8-permutations-and-combinations)  
+9. [Miscellaneous Utilities](#9-miscellaneous-utilities)  
+10. [Deprecated or Removed](#10-deprecated-or-removed)  
 
 ---
 
