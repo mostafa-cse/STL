@@ -577,13 +577,3 @@ int main() {
 | `<map>` / `<set>`        | `map<Key,Value>`, `set<Value>`, `.insert`, `operator[]`, `.find`, `.erase`, `.count`, `.begin`, `.end`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | `<queue>` / `<stack>`    | `queue<T>`, `stack<T>`, `.push`, `.pop`, `.front`, `.back`, `.top`, `.size`, `.empty`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | `<random>`               | `random_device`, `mt19937`, `uniform_int_distribution`, `shuffle`, etc.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-
----
-
-### How to Use This Sheet
-
-1. **Include the appropriate header** at the top of your `.cpp` file.
-2. **Call the function** exactly as shown (most live in `` namespace).
-3. **Compile with a C++11 (or newer) compiler** to access everything (e.g., `g++ -std=c++17`).
-
-With this list, you have at a glance the key built-in functions and their minimal usage patterns. Whenever you need more detail, simply look up the function’s signature on cppreference.com or in your IDE’s documentation.
