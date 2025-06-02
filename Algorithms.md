@@ -1,1376 +1,1004 @@
+Below is a categorized list of the most commonly used “built-in” (i.e., standard-library) functions in C++. For each category, you’ll find:
 
-## Table of Contents
-Builtin Function(define in algorithm headerfile)<br>
-├── 1. [Non-Modifying Sequence Operations](#1-non-modifying-sequence-operations)<br>
-|      ├── [1.1 for_each](#11-for_each)<br>
-|      ├──<br>
-    
-|
-2. [Modifying Sequence Operations](#2-modifying-sequence-operations)  
-3. [Heap Operations](#3-heap-operations)  
-4. [Sorting and Related Operations](#4-sorting-and-related-operations)  
-5. [Binary Search and Related Operations](#5-binary-search-and-related-operations)  
-6. [Merging and Set Operations](#6-merging-and-set-operations)  
-7. [Min/Max and Related](#7-minmax-and-related)  
-8. [Permutations and Combinations](#8-permutations-and-combinations)  
-9. [Miscellaneous Utilities](#9-miscellaneous-utilities)  
-10. [Deprecated or Removed](#10-deprecated-or-removed)  
+1. The header you need to include.
+2. A brief description of each function.
+3. A minimal code example showing how to use it.
+
+> **Note:** It’s impractical to list literally *every* function from the entire C++ Standard Library in one answer. Instead, this guide highlights the core, commonly used functions in each category. If you need something very specific (e.g., low-level memory intrinsics or compiler intrinsics like `__builtin_popcount`), let me know, and I can expand further.
 
 ---
 
-## 1. Non-Modifying Sequence Operations
+## 1. Input/Output (I/O) Functions
 
-These algorithms examine or traverse ranges without changing the underlying elements.
+Most I/O in modern C++ is done via the `<iostream>` header.
 
-### 1.1 `for_each`
+### 1.1 `std::cout` / `std::cin` / `std::cerr` / `std::clog`
 
-**Signature**  
-```cpp
-template<class InputIt, class UnaryFunction>
-UnaryFunction for_each(InputIt first, InputIt last, UnaryFunction f);
-````
-
-**Description**
-Applies a callable `f` to every element in `[first, last)`.
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-int main() {
-    std::vector<int> nums = {1, 2, 3, 4, 5};
-    std::cout << "Elements: ";
-    std::for_each(nums.begin(), nums.end(), [](int x) {
-        std::cout << x << " ";
-    });
-    std::cout << "\n";
-    return 0;
-}
-```
-
----
-
-### 1.2 `find` / `find_if` / `find_if_not`
-
-* **`find(InputIt first, InputIt last, const T& value)`** — returns an iterator to the first element equal to `value`.
-* **`find_if(InputIt first, InputIt last, UnaryPredicate p)`** — returns the first element for which `p(element)` is true.
-* **`find_if_not(InputIt first, InputIt last, UnaryPredicate q)`** — returns the first element for which `q(element)` is false (since C++11).
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-bool is_even(int x) { return x % 2 == 0; }
-
-int main() {
-    std::vector<int> v = {3, 5, 7, 8, 10};
-
-    // find first occurrence of 7
-    auto it1 = std::find(v.begin(), v.end(), 7);
-    if (it1 != v.end()) {
-        std::cout << "Found 7 at index " << std::distance(v.begin(), it1) << "\n";
-    }
-
-    // find first even number
-    auto it2 = std::find_if(v.begin(), v.end(), is_even);
-    if (it2 != v.end()) {
-        std::cout << "First even: " << *it2 << "\n";
-    }
-
-    // find first number that is NOT even
-    auto it3 = std::find_if_not(v.begin(), v.end(), is_even);
-    if (it3 != v.end()) {
-        std::cout << "First not-even: " << *it3 << "\n";
-    }
-    return 0;
-}
-```
-
----
-
-### 1.3 `count` / `count_if`
-
-* **`count(InputIt first, InputIt last, const T& value)`** — returns the number of elements equal to `value`.
-* **`count_if(InputIt first, InputIt last, UnaryPredicate p)`** — returns the number of elements satisfying predicate `p`.
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-bool is_odd(int x) { return x % 2 != 0; }
-
-int main() {
-    std::vector<int> data = {1, 2, 3, 2, 4, 2, 5};
-
-    // Count how many times '2' appears:
-    auto cnt2 = std::count(data.begin(), data.end(), 2);
-    std::cout << "Number of 2's: " << cnt2 << "\n";
-
-    // Count how many are odd
-    auto cnt_odd = std::count_if(data.begin(), data.end(), is_odd);
-    std::cout << "Number of odd elements: " << cnt_odd << "\n";
-
-    return 0;
-}
-```
-
----
-
-### 1.4 `mismatch` / `equal`
-
-* **`mismatch(InputIt1 first1, InputIt1 last1, InputIt2 first2)`** — compares two ranges element-by-element and returns the first position where they differ (as a pair of iterators).
-* **`equal(InputIt1 first1, InputIt1 last1, InputIt2 first2)`** — returns `true` if every element in `[first1, last1)` matches the corresponding element starting at `first2`. There is also an overload taking two ranges.
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-#include <utility> // for std::pair
-
-int main() {
-    std::vector<int> a = {1, 2, 3, 9, 5};
-    std::vector<int> b = {1, 2, 3, 4, 5};
-
-    // Find first mismatch
-    auto [it_a, it_b] = std::mismatch(a.begin(), a.end(), b.begin());
-    if (it_a != a.end()) {
-        std::cout << "First mismatch at position " << std::distance(a.begin(), it_a)
-                  << ": a=" << *it_a << ", b=" << *it_b << "\n";
-    }
-
-    // Check if two ranges are equal
-    bool are_equal = std::equal(a.begin(), a.end(), b.begin());
-    std::cout << "Ranges equal? " << (are_equal ? "Yes" : "No") << "\n";
-
-    return 0;
-}
-```
-
----
-
-### 1.5 `search` / `search_n`
-
-* **`search(ForwardIt1 first1, ForwardIt1 last1, ForwardIt2 first2, ForwardIt2 last2)`** — looks for the first occurrence of the sequence `[first2, last2)` within `[first1, last1)`.
-* **`search_n(ForwardIt first, ForwardIt last, Size count, const T& value)`** — finds the first subrange of `count` consecutive elements equal to `value`.
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-int main() {
-    std::vector<int> v = {1, 2, 3, 4, 2, 3, 4, 5};
-    std::vector<int> pattern = {2, 3, 4};
-
-    // search for pattern {2,3,4}
-    auto it = std::search(v.begin(), v.end(), pattern.begin(), pattern.end());
-    if (it != v.end()) {
-        std::cout << "Pattern found at index " << std::distance(v.begin(), it) << "\n";
-    }
-
-    // search_n: find three consecutive '4's (none in this example)
-    std::vector<int> w = {4, 4, 4, 2, 3};
-    auto it_n = std::search_n(w.begin(), w.end(), 3, 4); 
-    if (it_n != w.end()) {
-        std::cout << "Three consecutive 4's start at index " << std::distance(w.begin(), it_n) << "\n";
-    } else {
-        std::cout << "No three consecutive 4's found\n";
-    }
-
-    return 0;
-}
-```
-
----
-
-## 2. Modifying Sequence Operations
-
-These algorithms alter the contents of one or more ranges in place or by copying to an output range.
-
-### 2.1 `copy` / `copy_if` / `copy_n` / `copy_backward`
-
-* **`copy(InputIt first, InputIt last, OutputIt d_first)`** — copies `[first, last)` to `[d_first, d_first + (last-first))`.
-* **`copy_if(InputIt first, InputIt last, OutputIt d_first, UnaryPredicate p)`** — copies only elements for which `p(element)` is true (since C++11).
-* **`copy_n(InputIt first, Size count, OutputIt result)`** — copies exactly `count` elements starting at `first` to `result` (since C++11).
-* **`copy_backward(BidirectionalIt1 first, BidirectionalIt1 last, BidirectionalIt2 d_last)`** — copies `[first, last)` into the range ending at `d_last`, going backwards (useful when source and destination overlap).
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-bool is_positive(int x) { return x > 0; }
-
-int main() {
-    std::vector<int> src = {3, -1, 4, -2, 5};
-    std::vector<int> dest1(src.size());
-    std::vector<int> filtered;
-
-    // 1) copy all elements
-    std::copy(src.begin(), src.end(), dest1.begin());
-    std::cout << "Copied elements: ";
-    for (int x : dest1) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 2) copy only positive elements
-    filtered.resize(src.size()); // allocate max possible space
-    auto it = std::copy_if(src.begin(), src.end(), filtered.begin(), is_positive);
-    filtered.erase(it, filtered.end()); // shrink to actual size
-    std::cout << "Filtered positives: ";
-    for (int x : filtered) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 3) copy first 3 elements
-    std::vector<int> first3(3);
-    std::copy_n(src.begin(), 3, first3.begin());
-    std::cout << "First 3 elements: ";
-    for (int x : first3) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 4) copy_backward when overlapping
-    std::vector<int> overlap = {1, 2, 3, 4, 5, 0, 0};
-    // Shift first 5 elements two positions to the right in-place:
-    std::copy_backward(overlap.begin(), overlap.begin() + 5, overlap.end());
-    // overlap now: [1, 2, 3, 1, 2, 3, 4] (original 5 dropped)
-    std::cout << "After copy_backward: ";
-    for (int x : overlap) std::cout << x << " ";
-    std::cout << "\n";
-
-    return 0;
-}
-```
-
----
-
-### 2.2 `move` / `move_backward`
-
-* **`move(InputIt first, InputIt last, OutputIt d_first)`** (since C++11) — moves (i.e., uses move‐semantics) elements from `[first, last)` into `[d_first, …)`.
-* **`move_backward(BidirectionalIt1 first, BidirectionalIt1 last, BidirectionalIt2 d_last)`** (since C++11) — moves elements in reverse order to avoid overwriting when ranges overlap.
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-#include <string>
-#include <utility> // for std::move
-
-int main() {
-    std::vector<std::string> src = {"Alice", "Bob", "Carol"};
-    std::vector<std::string> dest(3);
-
-    // Move each string into dest
-    std::move(src.begin(), src.end(), dest.begin());
-    std::cout << "After move, src: ";
-    for (auto& s : src) {
-        std::cout << "\"" << s << "\" "; // usually empty or unspecified
-    }
-    std::cout << "\nDest: ";
-    for (auto& s : dest) {
-        std::cout << "\"" << s << "\" ";
-    }
-    std::cout << "\n";
-
-    // move_backward example with overlapping ranges
-    std::vector<int> ov = {10, 20, 30, 40, 0, 0};
-    // Move the first 4 elements two positions to the right:
-    std::move_backward(ov.begin(), ov.begin() + 4, ov.end());
-    // ov now: {10, 20, 10, 20, 30, 40}
-    std::cout << "After move_backward: ";
-    for (int x : ov) std::cout << x << " ";
-    std::cout << "\n";
-
-    return 0;
-}
-```
-
----
-
-### 2.3 `transform`
-
-* **Unary version**
+* **Header:**
 
   ```cpp
-  template<class InputIt, class OutputIt, class UnaryOperation>
-  OutputIt transform(InputIt first, InputIt last, OutputIt d_first, UnaryOperation unary_op);
+  #include <iostream>
   ```
 
-  Applies `unary_op` to each element in `[first, last)` and writes the result to `[d_first, …)`.
+* **Purpose:**
 
-* **Binary version**
+  * `std::cout` – write formatted output to standard output (console).
+  * `std::cin` – read formatted input from standard input (console).
+  * `std::cerr` – write error messages (unbuffered) to standard error.
+  * `std::clog` – write logging/info (buffered) to standard error.
+
+* **Examples:**
 
   ```cpp
-  template<class InputIt1, class InputIt2, class OutputIt, class BinaryOperation>
-  OutputIt transform(InputIt1 first1, InputIt1 last1, InputIt2 first2,
-                     OutputIt d_first, BinaryOperation binary_op);
+  #include <iostream>
+  using namespace std;
+
+  int main() {
+      int age;
+      cout << "Enter your age: ";
+      cin >> age;                       // reads an integer from keyboard
+      cout << "You are " << age << " years old.\n";
+
+      if (age < 0) {
+          cerr << "Error: Negative age!\n";  // unbuffered error
+      } else {
+          clog << "Info: Age input accepted.\n"; // buffered log
+      }
+      return 0;
+  }
   ```
 
-  Applies `binary_op(*it1, *it2)` to corresponding elements of two ranges, writing the result to output.
+### 1.2 `std::getline`
 
-**Example**
+* **Header:**
 
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
+  ```cpp
+  #include <iostream>
+  #include <string>
+  ```
 
-int main() {
-    std::vector<int> a = {1, 2, 3, 4, 5};
-    std::vector<int> b(5);
-    std::vector<int> c(5);
+* **Purpose:**
+  Read an entire line (possibly containing spaces) into a `std::string`.
 
-    // Unary transform: square each element of 'a' into 'b'
-    std::transform(a.begin(), a.end(), b.begin(), [](int x) {
-        return x * x;
-    });
-    std::cout << "Squares: ";
-    for (int x : b) std::cout << x << " ";
-    std::cout << "\n";
+* **Example:**
 
-    // Binary transform: add corresponding elements of 'a' and 'b' into 'c'
-    std::transform(a.begin(), a.end(), b.begin(), c.begin(), [](int x, int y) {
-        return x + y;
-    });
-    std::cout << "Sum of a and squares: ";
-    for (int x : c) std::cout << x << " ";
-    std::cout << "\n";
+  ```cpp
+  #include <iostream>
+  #include <string>
+  using namespace std;
 
-    return 0;
-}
-```
+  int main() {
+      string line;
+      cout << "Enter a sentence: ";
+      getline(cin, line);      // reads until newline (can include spaces)
+      cout << "You typed: \"" << line << "\"\n";
+      return 0;
+  }
+  ```
 
----
+### 1.3 File-Based I/O: `std::ifstream` / `std::ofstream` / `std::fstream`
 
-### 2.4 `replace` / `replace_if` / `replace_copy`
+* **Header:**
 
-* **`replace(ForwardIt first, ForwardIt last, const T& old_value, const T& new_value)`** — replaces every occurrence of `old_value` in `[first, last)` with `new_value`.
-* **`replace_if(ForwardIt first, ForwardIt last, UnaryPredicate p, const T& new_value)`** — replaces elements satisfying `p(element)` with `new_value`.
-* **`replace_copy(InputIt first, InputIt last, OutputIt d_first, const T& old_value, const T& new_value)`** — copies `[first, last)` to `d_first`, replacing `old_value` with `new_value` along the way.
-* **`replace_copy_if(InputIt first, InputIt last, OutputIt d_first, UnaryPredicate p, const T& new_value)`** — similar to `replace_copy`, but uses predicate.
+  ```cpp
+  #include <fstream>
+  ```
 
-**Example**
+* **Purpose:**
 
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
+  * `std::ifstream` – input file stream (reading from files).
+  * `std::ofstream` – output file stream (writing to files).
+  * `std::fstream` – combined read/write file stream.
 
-bool is_negative(int x) { return x < 0; }
+* **Example (writing & reading a file):**
 
-int main() {
-    std::vector<int> data = {1, -2, 3, -4, 5};
+  ```cpp
+  #include <fstream>
+  #include <iostream>
+  #include <string>
+  using namespace std;
 
-    // 1) replace -2 with 0 in-place
-    std::replace(data.begin(), data.end(), -2, 0);
-    // data = {1, 0, 3, -4, 5}
+  int main() {
+      // Write to file
+      ofstream fout("example.txt");
+      if (!fout) {
+          cerr << "Error: Could not open file for writing.\n";
+          return 1;
+      }
+      fout << "Line 1: Hello, file!\n";
+      fout << "Line 2: 12345\n";
+      fout.close();
 
-    // 2) replace all negative numbers with 0 using replace_if
-    std::replace_if(data.begin(), data.end(), is_negative, 0);
-    // data = {1, 0, 3, 0, 5}
-
-    std::cout << "After replace/replace_if: ";
-    for (int x : data) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 3) replace_copy: replace 0 with 99 into a new vector
-    std::vector<int> out(data.size());
-    std::replace_copy(data.begin(), data.end(), out.begin(), 0, 99);
-    // out = {1, 99, 3, 99, 5}
-
-    std::cout << "After replace_copy: ";
-    for (int x : out) std::cout << x << " ";
-    std::cout << "\n";
-
-    return 0;
-}
-```
+      // Read from file
+      ifstream fin("example.txt");
+      if (!fin) {
+          cerr << "Error: Could not open file for reading.\n";
+          return 1;
+      }
+      string line;
+      while (getline(fin, line)) {
+          cout << "Read: " << line << "\n";
+      }
+      fin.close();
+      return 0;
+  }
+  ```
 
 ---
 
-### 2.5 `fill` / `fill_n` / `generate` / `generate_n`
+## 2. Math Functions (`<cmath>`)
 
-* **`fill(ForwardIt first, ForwardIt last, const T& value)`** — assigns `value` to every element in `[first, last)`.
-* **`fill_n(OutputIt first, Size count, const T& value)`** — assigns `value` to the next `count` elements starting at `first`.
-* **`generate(ForwardIt first, ForwardIt last, Generator g)`** (since C++11) — assigns `g()` to every element in `[first, last)`.
-* **`generate_n(OutputIt first, Size count, Generator g)`** (since C++11) — assigns `g()` to the next `count` elements starting at `first`.
+All functions in `<cmath>` reside in namespace `std`. These cover common mathematical operations.
 
-**Example**
+* **Header:**
 
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-#include <random>
+  ```cpp
+  #include <cmath>
+  ```
 
-int main() {
-    std::vector<int> a(5);
+Below are the most frequently used ones:
 
-    // 1) fill with 7
-    std::fill(a.begin(), a.end(), 7);
-    std::cout << "All 7's: ";
-    for (int x : a) std::cout << x << " ";
-    std::cout << "\n";
+| Function                                       | Description                                    | Signature (simplified)                                        |
+| ---------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------- |
+| `std::abs(x)`                                  | Absolute value                                 | `int abs(int); double abs(double);` etc.                      |
+| `std::ceil(x)`                                 | Smallest integer ≥ x                           | `double ceil(double);`                                        |
+| `std::floor(x)`                                | Largest integer ≤ x                            | `double floor(double);`                                       |
+| `std::round(x)`                                | Nearest integer (ties to nearest even integer) | `double round(double);`                                       |
+| `std::sqrt(x)`                                 | Square root                                    | `double sqrt(double);`                                        |
+| `std::pow(x, y)`                               | x raised to the power y                        | `double pow(double, double);`                                 |
+| `std::exp(x)`                                  | Exponential (eˣ)                               | `double exp(double);`                                         |
+| `std::log(x)`                                  | Natural logarithm (ln x)                       | `double log(double);`                                         |
+| `std::log10(x)`                                | Base-10 logarithm                              | `double log10(double);`                                       |
+| `std::sin(x)`, `std::cos(x)`, `std::tan(x)`    | Trigonometric sine/cosine/tangent              | `double sin(double);` etc.                                    |
+| `std::asin(x)`, `std::acos(x)`, `std::atan(x)` | Inverse trigonometric functions                | `double asin(double);` etc.                                   |
+| `std::sinh(x)`, `std::cosh(x)`, `std::tanh(x)` | Hyperbolic sine/cosine/tangent                 | `double sinh(double);` etc.                                   |
+| `std::pow10(x)` (C++11: `std::powl(10, x)`)    | 10ˣ                                            | `double pow10(double);` (deprecated in C++11, use `std::pow`) |
 
-    // 2) fill first 3 elements with 42
-    std::fill_n(a.begin(), 3, 42);
-    // a = {42, 42, 42, 7, 7}
-    std::cout << "After fill_n: ";
-    for (int x : a) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 3) generate random numbers
-    std::mt19937 rng(123); // deterministic seed
-    std::uniform_int_distribution<int> dist(1, 100);
-    std::generate(a.begin(), a.end(), [&]() { return dist(rng); });
-    std::cout << "Random fill: ";
-    for (int x : a) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 4) generate_n: replace next 2 elements with random values
-    std::generate_n(a.begin(), 2, [&]() { return dist(rng); });
-    std::cout << "After generate_n (2): ";
-    for (int x : a) std::cout << x << " ";
-    std::cout << "\n";
-
-    return 0;
-}
-```
-
----
-
-### 2.6 `remove` / `remove_if` / `remove_copy`
-
-* **`remove(ForwardIt first, ForwardIt last, const T& value)`** — moves all elements not equal to `value` to the front of `[first, last)` and returns iterator to new “end” (does not actually shrink container).
-* **`remove_if(ForwardIt first, ForwardIt last, UnaryPredicate p)`** — moves all elements for which `p(element)` is false to the front.
-* **`remove_copy(InputIt first, InputIt last, OutputIt d_first, const T& value)`** — copies all elements not equal to `value` into `d_first`.
-* **`remove_copy_if(InputIt first, InputIt last, OutputIt d_first, UnaryPredicate p)`** — copies all elements for which `p(element)` is false into `d_first`.
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-bool is_even(int x) { return x % 2 == 0; }
-
-int main() {
-    std::vector<int> v = {1, 2, 3, 2, 4, 2, 5};
-
-    // 1) remove all '2's in-place
-    auto new_end = std::remove(v.begin(), v.end(), 2);
-    // v = {1, 3, 4, 5, ?, ?, ?}, new_end points to index 4
-    v.erase(new_end, v.end()); // actually remove trailing “garbage”
-    std::cout << "After remove(2): ";
-    for (int x : v) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 2) remove_if: remove all even numbers
-    std::vector<int> w = {1, 2, 3, 4, 5, 6};
-    auto new_end2 = std::remove_if(w.begin(), w.end(), is_even);
-    w.erase(new_end2, w.end());
-    std::cout << "After remove_if(is_even): ";
-    for (int x : w) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 3) remove_copy: copy all non-even elements to 'out'
-    std::vector<int> out;
-    out.reserve(6);
-    std::remove_copy(w.begin(), w.end(), std::back_inserter(out), 3);
-    // removes 3 (but w no longer contains 3). For demonstration, let's use original vector:
-    std::vector<int> orig = {1, 2, 3, 4, 5};
-    std::vector<int> out2;
-    out2.reserve(5);
-    std::remove_copy(orig.begin(), orig.end(), std::back_inserter(out2), 3);
-    // out2 = {1, 2, 4, 5}
-    std::cout << "After remove_copy(orig, 3): ";
-    for (int x : out2) std::cout << x << " ";
-    std::cout << "\n";
-
-    return 0;
-}
-```
+> **Example:**
+>
+> ```cpp
+> #include <iostream>
+> #include <cmath>
+> using namespace std;
+>
+> int main() {
+>     double x = -2.7, y = 3.14;
+>
+>     cout << "abs(" << x << ") = " << abs(x) << "\n";         // 2.7
+>     cout << "ceil(" << x << ") = " << ceil(x) << "\n";       // -2
+>     cout << "floor(" << x << ") = " << floor(x) << "\n";     // -3
+>     cout << "round(" << x << ") = " << round(x) << "\n";     // -3
+>     cout << "sqrt(9) = " << sqrt(9) << "\n";                 // 3
+>     cout << "pow(2, 5) = " << pow(2, 5) << "\n";              // 32
+>     cout << "exp(1) = " << exp(1) << "\n";                   // ≈2.71828
+>     cout << "log(10) = " << log(10) << "\n";                 // ≈2.30258
+>     cout << "sin(" << y << ") = " << sin(y) << "\n";         // ≈0.00159265
+>     cout << "cos(" << y << ") = " << cos(y) << "\n";         // ≈−0.9999987
+>     return 0;
+> }
+> ```
 
 ---
 
-### 2.7 `unique` / `unique_copy`
+## 3. Character Classification & Transformation (`<cctype>`)
 
-* **`unique(ForwardIt first, ForwardIt last)`** — removes consecutive duplicates in-place (returns new “end”).
-* **`unique_copy(InputIt first, InputIt last, OutputIt d_first)`** — copies elements to `d_first`, omitting all but the first of each group of consecutive duplicates.
+These functions test or transform single characters (usually `unsigned char` or `int` values representing `char`).
 
-**Example**
+* **Header:**
 
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
+  ```cpp
+  #include <cctype>
+  ```
 
-int main() {
-    std::vector<int> v = {1, 1, 2, 2, 2, 3, 3, 4};
+| Function          | Description                                                                | Signature (simplified) |
+| ----------------- | -------------------------------------------------------------------------- | ---------------------- |
+| `std::isalpha(c)` | `true` if `c` is an alphabetic character (A–Z or a–z).                     | `int isalpha(int);`    |
+| `std::isdigit(c)` | `true` if `c` is a decimal digit (0–9).                                    | `int isdigit(int);`    |
+| `std::isspace(c)` | `true` if `c` is a whitespace character (space, tab, newline, etc.).       | `int isspace(int);`    |
+| `std::isalnum(c)` | `true` if `c` is alphanumeric (letter or digit).                           | `int isalnum(int);`    |
+| `std::isupper(c)` | `true` if `c` is an uppercase letter.                                      | `int isupper(int);`    |
+| `std::islower(c)` | `true` if `c` is a lowercase letter.                                       | `int islower(int);`    |
+| `std::toupper(c)` | Convert `c` to uppercase (if alphabetic), otherwise returns `c` unchanged. | `int toupper(int);`    |
+| `std::tolower(c)` | Convert `c` to lowercase (if alphabetic), otherwise returns `c` unchanged. | `int tolower(int);`    |
 
-    // 1) unique in-place
-    auto new_end = std::unique(v.begin(), v.end());
-    v.erase(new_end, v.end());
-    std::cout << "After unique: ";
-    for (int x : v) std::cout << x << " ";
-    std::cout << "\n";
-    // v = {1, 2, 3, 4}
-
-    // 2) unique_copy
-    std::vector<int> v2 = {1, 1, 2, 2, 3, 3, 3, 4};
-    std::vector<int> out;
-    std::unique_copy(v2.begin(), v2.end(), std::back_inserter(out));
-    std::cout << "After unique_copy: ";
-    for (int x : out) std::cout << x << " ";
-    std::cout << "\n";
-    // out = {1, 2, 3, 4}
-
-    return 0;
-}
-```
-
----
-
-### 2.8 `reverse` / `reverse_copy` / `rotate` / `rotate_copy` / `shuffle`
-
-* **`reverse(BidirectionalIt first, BidirectionalIt last)`** — reverses the order of elements in `[first, last)`.
-* **`reverse_copy(BidirectionalIt first, BidirectionalIt last, OutputIt d_first)`** — writes reversed sequence to `d_first`.
-* **`rotate(ForwardIt first, ForwardIt n_first, ForwardIt last)`** — rotates the range so that `n_first` becomes the new `first`.
-* **`rotate_copy(ForwardIt first, ForwardIt n_first, ForwardIt last, OutputIt d_first)`** — writes the rotated result to `d_first`.
-* **`shuffle(RandomIt first, RandomIt last, URBG&& g)`** (since C++11) — randomly shuffles elements in `[first, last)` using uniform random bit generator `g`.
-
-  > **Note**: `random_shuffle` was deprecated in C++14 and removed in C++17; use `shuffle` instead.
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <random>
-#include <vector>
-
-int main() {
-    std::vector<int> v = {1, 2, 3, 4, 5};
-
-    // reverse
-    std::reverse(v.begin(), v.end());
-    // v = {5, 4, 3, 2, 1}
-    std::cout << "Reversed: ";
-    for (int x : v) std::cout << x << " ";
-    std::cout << "\n";
-
-    // reverse_copy
-    std::vector<int> rev_copy(5);
-    std::reverse_copy(v.begin(), v.end(), rev_copy.begin());
-    // rev_copy = {1, 2, 3, 4, 5}
-    std::cout << "Reverse copy: ";
-    for (int x : rev_copy) std::cout << x << " ";
-    std::cout << "\n";
-
-    // rotate: bring element at index 2 (value 3) to front
-    std::rotate(v.begin(), v.begin() + 2, v.end());
-    // v = {3, 2, 1, 5, 4}
-    std::cout << "Rotated: ";
-    for (int x : v) std::cout << x << " ";
-    std::cout << "\n";
-
-    // rotate_copy
-    std::vector<int> rot_copy(5);
-    std::rotate_copy(v.begin(), v.begin() + 2, v.end(), rot_copy.begin());
-    // rot_copy is same as rotating 'v' a second time
-    std::cout << "Rotate copy: ";
-    for (int x : rot_copy) std::cout << x << " ";
-    std::cout << "\n";
-
-    // shuffle
-    std::mt19937 rng(2025);
-    std::shuffle(v.begin(), v.end(), rng);
-    std::cout << "Shuffled: ";
-    for (int x : v) std::cout << x << " ";
-    std::cout << "\n";
-
-    return 0;
-}
-```
+> **Example:**
+>
+> ```cpp
+> #include <iostream>
+> #include <cctype>
+> using namespace std;
+>
+> int main() {
+>     char s[] = "Hello, World! 123\n";
+>     cout << "Original: " << s;
+>
+>     // Convert letters to uppercase
+>     for (int i = 0; s[i] != '\0'; ++i) {
+>         if (isalpha(s[i])) {
+>             s[i] = toupper(s[i]);
+>         }
+>     }
+>     cout << "Uppercase: " << s;
+>
+>     // Count digits and spaces
+>     int digitCount = 0, spaceCount = 0;
+>     for (int i = 0; s[i] != '\0'; ++i) {
+>         if (isdigit(s[i]))      ++digitCount;
+>         if (isspace(s[i]))      ++spaceCount;
+>     }
+>     cout << "Digits: " << digitCount << ", Spaces (incl. newline): " << spaceCount << "\n";
+>     return 0;
+> }
+> ```
 
 ---
 
-### 2.9 `partition` / `stable_partition` / `partition_copy` / `partition_point` / `is_partitioned`
+## 4. C-String (Null-Terminated) Manipulation (`<cstring>`)
 
-* **`partition(ForwardIt first, ForwardIt last, UnaryPredicate p)`** — reorders elements so that those satisfying `p` precede those that do not; returns iterator to the first element of the “second group.”
-* **`stable_partition(ForwardIt first, ForwardIt last, UnaryPredicate p)`** — same as `partition`, but maintains relative order within each group.
-* **`partition_copy(InputIt first, InputIt last, ForwardIt1 d_first_true, ForwardIt2 d_first_false, UnaryPredicate p)`** — copies elements into two separate output ranges: true-group and false-group. Returns a pair of iterators to the end of each output.
-* **`partition_point(ForwardIt first, ForwardIt last, UnaryPredicate p)`** (since C++11) — given a range partitioned by `p`, returns the first element in the “second group.”
-* **`is_partitioned(ForwardIt first, ForwardIt last, UnaryPredicate p)`** (since C++20) — returns `true` if all elements satisfying `p` precede all that do not.
+These functions work on “C-style” null-terminated character arrays (`char*`).
 
-**Example**
+* **Header:**
 
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
+  ```cpp
+  #include <cstring>
+  ```
 
-bool is_even(int x) { return x % 2 == 0; }
+| Function                        | Description                                                                                                                                                                | Signature (simplified)                                       |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `std::strlen(s)`                | Returns the length (number of characters) of C-string `s` (not counting `'\0'`).                                                                                           | `size_t strlen(const char*);`                                |
+| `std::strcpy(dst, src)`         | Copies the null-terminated string from `src` into `dst` (including the `'\0'`).                                                                                            | `char* strcpy(char* dst, const char* src);`                  |
+| `std::strncpy(dst, src, n)`     | Copies at most `n` characters of `src` into `dst`.  If `src` is shorter than `n`, the remainder of `dst` is padded with `'\0'`. If `src` is longer, no `'\0'` is appended. | `char* strncpy(char* dst, const char* src, size_t n);`       |
+| `std::strcat(dst, src)`         | Appends (concatenates) `src` onto the end of `dst`.  `dst` must be large enough to hold the result.                                                                        | `char* strcat(char* dst, const char* src);`                  |
+| `std::strncat(dst, src, n)`     | Appends at most `n` characters of `src` to `dst`, then adds a single `'\0'`.                                                                                               | `char* strncat(char* dst, const char* src, size_t n);`       |
+| `std::strcmp(s1, s2)`           | Compares two C-strings lexicographically. Returns <0 if `s1<s2`, 0 if `s1==s2`, >0 if `s1>s2`.                                                                             | `int strcmp(const char* s1, const char* s2);`                |
+| `std::strncmp(s1, s2, n)`       | Compares at most `n` characters of `s1` and `s2`.                                                                                                                          | `int strncmp(const char* s1, const char* s2, size_t n);`     |
+| `std::strchr(s, c)`             | Returns pointer to first occurrence of character `c` in `s`, or `nullptr` if not found.                                                                                    | `char* strchr(char* s, int c);` (and `const char*` overload) |
+| `std::strrchr(s, c)`            | Returns pointer to last occurrence of character `c` in `s`, or `nullptr` if not found.                                                                                     | `char* strrchr(char* s, int c);`                             |
+| `std::strstr(haystack, needle)` | Returns pointer to first occurrence of substring `needle` in `haystack`, or `nullptr` if not found.                                                                        | `char* strstr(char* haystack, const char* needle);`          |
+| `std::memset(ptr, val, n)`      | Sets the first `n` bytes of memory at `ptr` to the byte value `val`. Useful for quickly zeroing or filling raw buffers.                                                    | `void* memset(void* ptr, int val, size_t n);`                |
+| `std::memcpy(dest, src, n)`     | Copies exactly `n` bytes from `src` to `dest`. Does not handle overlap. Use `std::memmove` if overlapping.                                                                 | `void* memcpy(void* dest, const void* src, size_t n);`       |
+| `std::memmove(dest, src, n)`    | Copies `n` bytes from `src` to `dest`, correctly handling overlapping memory regions.                                                                                      | `void* memmove(void* dest, const void* src, size_t n);`      |
 
-int main() {
-    std::vector<int> v = {3, 8, 1, 6, 5, 4, 7, 2};
-
-    // 1) partition (not stable)
-    auto mid = std::partition(v.begin(), v.end(), is_even);
-    std::cout << "After partition: ";
-    for (int x : v) std::cout << x << " ";
-    std::cout << "\nFirst odd index: " << std::distance(v.begin(), mid) << "\n";
-
-    // Check if partitioned
-    std::cout << "Is partitioned? " << (std::is_partitioned(v.begin(), v.end(), is_even) ? "Yes" : "No") << "\n";
-
-    // 2) stable_partition
-    std::vector<int> w = {3, 8, 1, 6, 5, 4, 7, 2};
-    auto mid2 = std::stable_partition(w.begin(), w.end(), is_even);
-    std::cout << "After stable_partition: ";
-    for (int x : w) std::cout << x << " ";
-    std::cout << "\nFirst odd index: " << std::distance(w.begin(), mid2) << "\n";
-
-    // 3) partition_copy
-    std::vector<int> trues, falses;
-    trues.reserve(w.size());
-    falses.reserve(w.size());
-    auto [t_it, f_it] = std::partition_copy(
-        w.begin(), w.end(),
-        std::back_inserter(trues),
-        std::back_inserter(falses),
-        is_even
-    );
-    std::cout << "Partition copy - evens: ";
-    for (int x : trues) std::cout << x << " ";
-    std::cout << "\nPartition copy - odds: ";
-    for (int x : falses) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 4) partition_point (after partitioning)
-    auto it_pt = std::partition_point(v.begin(), v.end(), is_even);
-    std::cout << "partition_point: first odd is at index " << std::distance(v.begin(), it_pt) << "\n";
-
-    return 0;
-}
-```
-
----
-
-## 3. Heap Operations
-
-These algorithms treat a random-access range as a binary heap (max-heap by default).
-
-### 3.1 `make_heap` / `push_heap` / `pop_heap` / `sort_heap`
-
-* **`make_heap(RandomIt first, RandomIt last)`** — transforms `[first, last)` into a valid max-heap.
-* **`push_heap(RandomIt first, RandomIt last)`** — assumes `[first, last−1)` is a heap; extends the heap to include `*(last−1)`.
-* **`pop_heap(RandomIt first, RandomIt last)`** — swaps `*first` (max) with `*(last−1)`, then re-heapifies `[first, last−1)`.
-* **`sort_heap(RandomIt first, RandomIt last)`** — repeatedly calls `pop_heap` to sort the entire heap in ascending order.
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-int main() {
-    std::vector<int> v = {10, 20, 5, 15, 30};
-
-    // 1) build a max-heap
-    std::make_heap(v.begin(), v.end());
-    std::cout << "After make_heap: ";
-    for (int x : v) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 2) push_heap: add a new element and restore heap
-    v.push_back(25);
-    std::push_heap(v.begin(), v.end());
-    std::cout << "After push_heap(25): ";
-    for (int x : v) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 3) pop_heap: move max to end and re-heapify
-    std::pop_heap(v.begin(), v.end());
-    int max_val = v.back();
-    v.pop_back();
-    std::cout << "Popped max: " << max_val << "\nHeap now: ";
-    for (int x : v) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 4) sort_heap: sort the remaining elements
-    std::sort_heap(v.begin(), v.end());
-    std::cout << "After sort_heap: ";
-    for (int x : v) std::cout << x << " ";
-    std::cout << "\n";
-
-    return 0;
-}
-```
+> **Example:**
+>
+> ```cpp
+> #include <iostream>
+> #include <cstring>
+> using namespace std;
+>
+> int main() {
+>     char s1[50] = "Hello";
+>     char s2[]     = ", World!";
+>
+>     // strlen
+>     cout << "Length of \"" << s1 << "\": " << strlen(s1) << "\n";
+>
+>     // strcat
+>     strcat(s1, s2);   // s1 now = "Hello, World!"
+>     cout << "After strcat: " << s1 << "\n";
+>
+>     // strcpy
+>     char copyBuf[50];
+>     strcpy(copyBuf, s1);
+>     cout << "Copied string: " << copyBuf << "\n";
+>
+>     // strstr
+>     char* p = strstr(copyBuf, "World");
+>     if (p) {
+>         cout << "\"World\" found at index: " << (p - copyBuf) << "\n";
+>     }
+>
+>     // memset
+>     char buffer[10];
+>     memset(buffer, 'A', sizeof(buffer));  // fills buffer with 'A'
+>     cout << "memset buffer: ";
+>     for (char c : buffer) cout << c;
+>     cout << "\n";
+>
+>     // memcpy (copy raw bytes)
+>     int arr1[5] = {1, 2, 3, 4, 5};
+>     int arr2[5];
+>     memcpy(arr2, arr1, sizeof(arr1));      // copy all 5 integers
+>     cout << "arr2 after memcpy: ";
+>     for (int i = 0; i < 5; ++i) cout << arr2[i] << " ";
+>     cout << "\n";
+>
+>     return 0;
+> }
+> ```
 
 ---
 
-### 3.2 `is_heap` / `is_heap_until`
+## 5. General Utility & Conversion (`<cstdlib>`, `<utility>`)
 
-* **`is_heap(RandomIt first, RandomIt last)`** — returns `true` if `[first, last)` satisfies max-heap property.
-* **`is_heap_until(RandomIt first, RandomIt last)`** — returns the largest sorted prefix that is a heap (iterator to first element that violates heap property).
+### 5.1 Memory Management: `std::malloc`, `std::free`, `std::calloc`, `std::realloc`
 
-**Example**
+* **Header:**
 
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
+  ```cpp
+  #include <cstdlib>
+  ```
+* **Purpose:**
+  Low-level C-style dynamic allocation (rarely used in idiomatic C++; normally prefer `new`/`delete` or containers).
 
-int main() {
-    std::vector<int> h1 = {50, 30, 40, 10, 20};
-    std::vector<int> h2 = {50, 30, 60, 10, 20};
+| Function                                      | Description                                                                                                             | Signature (simplified)          |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| `void* std::malloc(size_t n)`                 | Allocate `n` bytes of uninitialized memory. Returns pointer to start or `nullptr` on failure.                           | `void* malloc(size_t);`         |
+| `void std::free(void* p)`                     | Free memory previously allocated by `malloc`/`calloc`/`realloc`. `p` may be `nullptr`.                                  | `void free(void*);`             |
+| `void* std::calloc(size_t n, size_t size)`    | Allocate memory for an array of `n` elements, each of size `size`, and initialize all bytes to zero.                    | `void* calloc(size_t, size_t);` |
+| `void* std::realloc(void* p, size_t newSize)` | Resize the memory block pointed to by `p` to `newSize` bytes. Contents are preserved up to the lesser of old/new sizes. | `void* realloc(void*, size_t);` |
 
-    std::cout << "h1 is heap? " << (std::is_heap(h1.begin(), h1.end()) ? "Yes" : "No") << "\n";
-    std::cout << "h2 is heap? " << (std::is_heap(h2.begin(), h2.end()) ? "Yes" : "No") << "\n";
+> **Example:**
+>
+> ```cpp
+> #include <iostream>
+> #include <cstdlib>
+> using namespace std;
+>
+> int main() {
+>     int n = 5;
+>     // Allocate array of 5 ints
+>     int* arr = static_cast<int*>(malloc(n * sizeof(int)));
+>     if (!arr) {
+>         cerr << "malloc failed\n";
+>         return 1;
+>     }
+>     for (int i = 0; i < n; ++i) {
+>         arr[i] = (i + 1) * 10;
+>     }
+>
+>     cout << "Original array: ";
+>     for (int i = 0; i < n; ++i) cout << arr[i] << " ";
+>     cout << "\n";
+>
+>     // Grow array to 10 ints
+>     arr = static_cast<int*>(realloc(arr, 10 * sizeof(int)));
+>     if (!arr) {
+>         cerr << "realloc failed\n";
+>         return 1;
+>     }
+>     for (int i = n; i < 10; ++i) {
+>         arr[i] = (i + 1) * 10;
+>     }
+>
+>     cout << "After realloc (size 10): ";
+>     for (int i = 0; i < 10; ++i) cout << arr[i] << " ";
+>     cout << "\n";
+>
+>     free(arr);  // Always free what you malloc/calloc/realloc
+>     return 0;
+> }
+> ```
 
-    auto it = std::is_heap_until(h2.begin(), h2.end());
-    std::cout << "First violation at index " << std::distance(h2.begin(), it) << "\n";
+### 5.2 Process Control & Conversions: `std::exit`, `std::atoi`, `std::atof`, etc.
 
-    return 0;
-}
-```
+* **Header:**
 
----
+  ```cpp
+  #include <cstdlib>
+  ```
+* **Purpose:**
 
-## 4. Sorting and Related Operations
+  * `std::exit(code)` – terminate the program immediately with exit status `code`.
+  * `std::atoi(str)` – convert C-string `str` to `int`. Returns `0` if no valid conversion.
+  * `std::atof(str)` – convert C-string to `double`.
+  * `std::strtol`, `std::strtod` – more robust string-to-number conversions with error checking.
 
-These algorithms reorder a range into (partial) sorted order.
+> **Example:**
+>
+> ```cpp
+> #include <iostream>
+> #include <cstdlib>
+> using namespace std;
+>
+> int main(int argc, char* argv[]) {
+>     if (argc != 2) {
+>         cerr << "Usage: " << argv[0] << " <number>\n";
+>         return 1;
+>     }
+>     int val = atoi(argv[1]);
+>     if (val == 0 && argv[1][0] != '0') {
+>         cerr << "Error: argument is not a valid integer\n";
+>         exit(EXIT_FAILURE);  // equivalent to return 1 from main
+>     }
+>     cout << "You entered integer: " << val << "\n";
+>     return 0;  // exit with status 0 (success)
+> }
+> ```
 
-### 4.1 `sort` / `stable_sort`
+### 5.3 `std::swap`
 
-* **`sort(RandomIt first, RandomIt last)`** — sorts `[first, last)` in ascending order (introsort).
-* **`stable_sort(RandomIt first, RandomIt last)`** — sorts while preserving relative order of equivalent elements.
+* **Header:**
 
-**Example**
+  ```cpp
+  #include <utility>   // (or <algorithm>)
+  ```
 
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
+* **Purpose:**
+  Exchange the values of two objects of the same type. Overloaded for most built-in and standard types.
 
-int main() {
-    std::vector<int> v = {5, 2, 8, 3, 1, 7};
+* **Example:**
 
-    // 1) sort
-    std::sort(v.begin(), v.end());
-    std::cout << "Sorted: ";
-    for (int x : v) std::cout << x << " ";
-    std::cout << "\n";
+  ```cpp
+  #include <iostream>
+  #include <utility>
+  using namespace std;
 
-    // 2) stable_sort with custom comparator (descending)
-    std::vector<int> w = {5, 2, 8, 3, 1, 7};
-    std::stable_sort(w.begin(), w.end(), [](int a, int b) {
-        return a > b;
-    });
-    std::cout << "Stable-sorted (descending): ";
-    for (int x : w) std::cout << x << " ";
-    std::cout << "\n";
-
-    return 0;
-}
-```
-
----
-
-### 4.2 `partial_sort` / `partial_sort_copy` / `nth_element`
-
-* **`partial_sort(RandomIt first, RandomIt middle, RandomIt last)`** — rearranges elements so that `[first, middle)` are the smallest elements in sorted order; the rest are left in unspecified order.
-* **`partial_sort_copy(InputIt first, InputIt last, RandomIt d_first, RandomIt d_last)`** — copies and sorts the smallest `min(last-first, d_last-d_first)` elements into `[d_first, …)`.
-* **`nth_element(RandomIt first, RandomIt nth, RandomIt last)`** — rearranges so that the element at `nth` is the same element that would be there in a full sort, with all elements before it ≤ it and after it ≥ it (no full ordering guaranteed on either side).
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-int main() {
-    std::vector<int> v = {7, 2, 9, 4, 6, 5, 3, 1, 8};
-
-    // 1) partial_sort: get the 3 smallest elements sorted at front
-    std::partial_sort(v.begin(), v.begin() + 3, v.end());
-    std::cout << "After partial_sort (3 smallest at front): ";
-    for (int x : v) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 2) partial_sort_copy: copy top-5 smallest into new vector
-    std::vector<int> out(5);
-    std::partial_sort_copy(v.begin(), v.end(), out.begin(), out.end());
-    std::cout << "partial_sort_copy (5 smallest): ";
-    for (int x : out) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 3) nth_element: find median (position 4 for 9 elements)
-    std::nth_element(v.begin(), v.begin() + 4, v.end());
-    std::cout << "Element at index 4 after nth_element: " << v[4] << "\n";
-    // All elements before index 4 are ≤ v[4], after are ≥ v[4].
-
-    return 0;
-}
-```
-
----
-
-## 5. Binary Search and Related Operations
-
-These assume a sorted range and perform logarithmic-time searches.
-
-### 5.1 `lower_bound` / `upper_bound` / `binary_search` / `equal_range`
-
-* **`lower_bound(ForwardIt first, ForwardIt last, const T& value)`** — returns iterator to the first element ≥ `value`.
-* **`upper_bound(ForwardIt first, ForwardIt last, const T& value)`** — returns iterator to the first element > `value`.
-* **`binary_search(ForwardIt first, ForwardIt last, const T& value)`** — returns `true` if `value` exists in the sorted range.
-* **`equal_range(ForwardIt first, ForwardIt last, const T& value)`** — returns a pair of iterators delimiting the subrange of elements equal to `value` (i.e., `[lower_bound, upper_bound)`).
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-int main() {
-    std::vector<int> v = {1, 2, 2, 3, 4, 4, 4, 5};
-
-    // find lower_bound of 4
-    auto lb = std::lower_bound(v.begin(), v.end(), 4);
-    std::cout << "lower_bound(4) index: " << std::distance(v.begin(), lb) << "\n";
-
-    // find upper_bound of 4
-    auto ub = std::upper_bound(v.begin(), v.end(), 4);
-    std::cout << "upper_bound(4) index: " << std::distance(v.begin(), ub) << "\n";
-
-    // binary_search for 3
-    bool found3 = std::binary_search(v.begin(), v.end(), 3);
-    std::cout << "3 found? " << (found3 ? "Yes" : "No") << "\n";
-
-    // equal_range for 2
-    auto range2 = std::equal_range(v.begin(), v.end(), 2);
-    std::cout << "equal_range(2): indices [" 
-              << std::distance(v.begin(), range2.first) << ", "
-              << std::distance(v.begin(), range2.second) << ")\n";
-
-    return 0;
-}
-```
+  int main() {
+      int a = 5, b = 10;
+      cout << "Before swap: a=" << a << ", b=" << b << "\n";
+      swap(a, b);
+      cout << "After swap:  a=" << a << ", b=" << b << "\n";
+      return 0;
+  }
+  ```
 
 ---
 
-## 6. Merging and Set Operations
+## 6. Algorithms (`<algorithm>`)
 
-These operate on two sorted ranges and produce a sorted output or query set-relationships.
+The `<algorithm>` header provides many generic (templated) functions that work on iterators (e.g., arrays, `std::vector`, `std::string`). Below are some of the most common ones.
 
-### 6.1 `merge` / `inplace_merge`
+* **Header:**
 
-* **`merge(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, OutputIt d_first)`** — merges two sorted ranges into a new sorted output starting at `d_first`.
-* **`inplace_merge(BidirIt first, BidirIt middle, BidirIt last)`** — merges two consecutive sorted subranges `[first, middle)` and `[middle, last)` in place.
+  ```cpp
+  #include <algorithm>
+  ```
 
-**Example**
+| Function                                               | Description                                                                                                                                                    |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `std::sort(begin, end)`                                | Sorts the elements in the half-open range `[begin, end)` in ascending order (using `<` by default).                                                            |
+| `std::reverse(begin, end)`                             | Reverses the order of elements in `[begin, end)`.                                                                                                              |
+| `std::find(begin, end, value)`                         | Returns iterator to the first element equal to `value` in `[begin, end)`, or `end` if none found.                                                              |
+| `std::count(begin, end, value)`                        | Counts how many elements equal `value` in `[begin, end)`.                                                                                                      |
+| `std::accumulate(begin, end, init)` (from `<numeric>`) | Sums up elements in `[begin, end)`, starting from initial value `init`. Must `#include <numeric>`.                                                             |
+| `std::binary_search(begin, end, value)`                | Returns `true` if `value` is found in sorted range `[begin, end)`, otherwise `false`.                                                                          |
+| `std::lower_bound(begin, end, value)`                  | Returns the first iterator `it` in `[begin, end)` such that `*it >= value` (requires sorted range).                                                            |
+| `std::upper_bound(begin, end, value)`                  | Returns the first iterator `it` in `[begin, end)` such that `*it > value` (requires sorted range).                                                             |
+| `std::max_element(begin, end)`                         | Returns iterator to the largest element in `[begin, end)`.                                                                                                     |
+| `std::min_element(begin, end)`                         | Returns iterator to the smallest element in `[begin, end)`.                                                                                                    |
+| `std::remove(begin, end, value)`                       | “Removes” all elements equal to `value` by shifting non-matching elements forward; returns new logical end (must call container’s `erase` to actually remove). |
 
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
+> **Example (vector + algorithms):**
+>
+> ```cpp
+> #include <iostream>
+> #include <vector>
+> #include <algorithm>
+> #include <numeric>   // for accumulate
+> using namespace std;
+> ```
 
-int main() {
-    std::vector<int> a = {1, 3, 5, 7};
-    std::vector<int> b = {2, 4, 6, 8};
-    std::vector<int> dest(a.size() + b.size());
+> int main() {
+> vector<int> v = { 3, 1, 4, 1, 5, 9, 2, 6, 5 };
+> cout << "Original: ";
+> for (int x : v) cout << x << " ";
+> cout << "\n";
 
-    // 1) merge into a separate vector
-    std::merge(a.begin(), a.end(), b.begin(), b.end(), dest.begin());
-    std::cout << "Merged result: ";
-    for (int x : dest) std::cout << x << " ";
-    std::cout << "\n";
+> ```
+> // Sort
+> sort(v.begin(), v.end());  // now {1,1,2,3,4,5,5,6,9}
+> cout << "Sorted:   ";
+> for (int x : v) cout << x << " ";
+> cout << "\n";
+> ```
 
-    // 2) inplace_merge: two sorted halves in one vector
-    std::vector<int> c = {1, 3, 5, 7, 2, 4, 6, 8};
-    // assume [c.begin(), c.begin()+4) and [c.begin()+4, c.end()) are each sorted
-    std::inplace_merge(c.begin(), c.begin() + 4, c.end());
-    std::cout << "After inplace_merge: ";
-    for (int x : c) std::cout << x << " ";
-    std::cout << "\n";
+> ```
+> // Count how many 5's
+> int count5 = count(v.begin(), v.end(), 5);
+> cout << "Number of 5's: " << count5 << "\n";
+> ```
 
-    return 0;
-}
-```
+> ```
+> // Find first element >= 4
+> auto it = lower_bound(v.begin(), v.end(), 4);
+> if (it != v.end()) {
+>     cout << "First element >= 4 is " << *it << " at index " << (it - v.begin()) << "\n";
+> }
+> ```
 
----
+> ```
+> // Sum of all elements
+> int sum = accumulate(v.begin(), v.end(), 0);
+> cout << "Sum of elements: " << sum << "\n";
+> ```
 
-### 6.2 `includes` / `set_union` / `set_intersection` / `set_difference` / `set_symmetric_difference`
+> ```
+> // Remove all 1's (logical removal)
+> auto newEnd = remove(v.begin(), v.end(), 1);
+> v.erase(newEnd, v.end());  // actually shrink the vector
+> cout << "After removing 1's: ";
+> for (int x : v) cout << x << " ";
+> cout << "\n";
+> ```
 
-* **`includes(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2)`** — returns `true` if every element in `[first2, last2)` is contained (in order) within `[first1, last1)`.
-* **`set_union(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, OutputIt d_first)`** — computes the union of two sorted ranges into `d_first`.
-* **`set_intersection(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, OutputIt d_first)`** — computes the intersection.
-* **`set_difference(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, OutputIt d_first)`** — computes elements in first range not in second.
-* **`set_symmetric_difference(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, OutputIt d_first)`** — computes elements that are in either range, but not both.
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-int main() {
-    std::vector<int> A = {1, 2, 3, 5, 7};
-    std::vector<int> B = {2, 3, 4, 6, 7};
-
-    // 1) includes?
-    bool all_in = std::includes(A.begin(), A.end(), B.begin(), B.end());
-    std::cout << "A includes B? " << (all_in ? "Yes" : "No") << "\n";
-
-    // 2) set_union
-    std::vector<int> uni;
-    uni.reserve(A.size() + B.size());
-    std::set_union(A.begin(), A.end(), B.begin(), B.end(), std::back_inserter(uni));
-    std::cout << "Union: ";
-    for (int x : uni) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 3) set_intersection
-    std::vector<int> inter;
-    inter.reserve(std::min(A.size(), B.size()));
-    std::set_intersection(A.begin(), A.end(), B.begin(), B.end(), std::back_inserter(inter));
-    std::cout << "Intersection: ";
-    for (int x : inter) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 4) set_difference (A − B)
-    std::vector<int> diff;
-    diff.reserve(A.size());
-    std::set_difference(A.begin(), A.end(), B.begin(), B.end(), std::back_inserter(diff));
-    std::cout << "A \\ B: ";
-    for (int x : diff) std::cout << x << " ";
-    std::cout << "\n";
-
-    // 5) set_symmetric_difference
-    std::vector<int> sym_diff;
-    sym_diff.reserve(A.size() + B.size());
-    std::set_symmetric_difference(A.begin(), A.end(), B.begin(), B.end(), std::back_inserter(sym_diff));
-    std::cout << "Symmetric difference: ";
-    for (int x : sym_diff) std::cout << x << " ";
-    std::cout << "\n";
-
-    return 0;
-}
-```
+> ```
+> return 0;
+> ```
+>
+> }
+>
+> ```
+> ```
 
 ---
 
-## 7. Min/Max and Related
+## 7. Containers & Their Member Functions
 
-### 7.1 `min` / `max` / `minmax`
+Strictly speaking, container member functions (e.g., `std::vector::push_back`) are NOT “built-in free functions” but members of template classes. However, they are so ubiquitous that it’s worth listing the most common container types and their basic member functions.
 
-* **`min(const T& a, const T& b)`** — returns the smaller of `a` and `b`. There are overloads for initializer-lists, ranges, and custom comparators.
-* **`max(const T& a, const T& b)`** — returns the larger of `a` and `b`. Similar overloads.
-* **`minmax(const T& a, const T& b)`** (since C++11) — returns a `pair<T, T>` where `.first` is the minimum and `.second` is the maximum.
+> **Header (most used containers):**
+>
+> ```cpp
+> #include <vector>
+> #include <string>
+> #include <list>
+> #include <deque>
+> #include <map>
+> #include <unordered_map>
+> #include <set>
+> #include <queue>
+> #include <stack>
+> #include <array>
+> ```
+>
+> All containers live in namespace `std`.
 
-**Example**
+Below are a few illustrative member functions for `std::vector<T>` (the others follow similar patterns):
 
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <utility> // for std::pair
+| Member Function                 | Description                                                     |
+| ------------------------------- | --------------------------------------------------------------- |
+| `v.size()`                      | Returns number of elements in the container (constant time).    |
+| `v.empty()`                     | Returns `true` if `size() == 0`.                                |
+| `v.push_back(elem)`             | Appends `elem` to the end (amortized constant time).            |
+| `v.pop_back()`                  | Removes the last element (constant time).                       |
+| `v.front()` / `v.back()`        | Returns a reference to the first/last element (constant time).  |
+| `v[i]` / `v.at(i)`              | Element access by index; `at(i)` does range checking (throws).  |
+| `v.clear()`                     | Removes all elements (linear time).                             |
+| `v.insert(it, elem)`            | Inserts `elem` at iterator position `it` (linear time).         |
+| `v.erase(it)`                   | Removes element at `it` (linear time; iterator invalidated).    |
+| `v.begin()` / `v.end()`         | Iterator to first/one-past-last element, used by algorithms.    |
+| `v.capacity()` / `v.reserve(n)` | Inspect or request internal capacity to avoid repeated realloc. |
 
-int main() {
-    int a = 10, b = 20;
-    std::cout << "min(10,20): " << std::min(a, b) << "\n";
-    std::cout << "max(10,20): " << std::max(a, b) << "\n";
+> **Example (`std::vector` basics):**
+>
+> ```cpp
+> #include <iostream>
+> #include <vector>
+> using namespace std;
+> ```
 
-    auto [mn, mx] = std::minmax(a, b);
-    std::cout << "minmax(10,20): (" << mn << ", " << mx << ")\n";
+> int main() {
+> vector<string> names;
+> names.push\_back("Alice");
+> names.push\_back("Bob");
+> names.push\_back("Charlie");
 
-    return 0;
-}
-```
+> ```
+> cout << "Size: " << names.size() << "\n";      // 3
+> cout << "First: " << names.front() << "\n";    // "Alice"
+> cout << "Last: " << names.back() << "\n";      // "Charlie"
+> ```
+
+> ```
+> // Iterate
+> for (size_t i = 0; i < names.size(); ++i) {
+>     cout << "names[" << i << "] = " << names[i] << "\n";
+> }
+> ```
+
+> ```
+> // Erase “Bob”
+> for (auto it = names.begin(); it != names.end(); ++it) {
+>     if (*it == "Bob") {
+>         names.erase(it);
+>         break;
+>     }
+> }
+> cout << "After erasing Bob, size = " << names.size() << "\n"; // 2
+> ```
+
+> ```
+> // Clear all
+> names.clear();
+> cout << "After clear, empty? " << boolalpha << names.empty() << "\n"; // true
+> ```
+
+> ```
+> return 0;
+> ```
+>
+> }
+>
+> ```
+> ```
 
 ---
 
-### 7.2 `min_element` / `max_element` / `minmax_element` / `clamp`
+## 8. String Class (`<string>`) Free Functions
 
-* **`min_element(ForwardIt first, ForwardIt last)`** — returns iterator to the smallest element in `[first, last)`.
-* **`max_element(ForwardIt first, ForwardIt last)`** — returns iterator to the largest element.
-* **`minmax_element(ForwardIt first, ForwardIt last)`** (since C++11) — returns a pair of iterators—first to the minimum, second to the maximum element.
-* **`clamp(const T& v, const T& lo, const T& hi)`** (since C++17) — returns `lo` if `v < lo`, `hi` if `v > hi`, otherwise returns `v` (with an overload accepting a custom comparator).
+Even though most string operations are member functions (`std::string::substr`, `.find`, etc.), there are a few non-member (free) functions that accept or return `std::string`.
 
-**Example**
+* **Header:**
 
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-#include <tuple> // for structured bindings
+  ```cpp
+  #include <string>
+  ```
 
-int main() {
-    std::vector<int> v = {15, 3, 27, 7, 19};
+| Function                                                                                                       | Description                                                                                            |
+| -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `std::getline(cin, str)`                                                                                       | (already covered) reads a whole line into a `std::string`.                                             |
+| `std::to_string(value)`                                                                                        | Convert an integer, float, double, etc., to an `std::string`.                                          |
+| `std::stoi(str)`, `std::stol(str)`, `std::stoll(str)`<br>`std::stof(str)`, `std::stod(str)`, `std::stold(str)` | Convert `std::string` (or C-string) to integer/float/double/long double. Throws on invalid conversion. |
 
-    // min_element / max_element
-    auto it_min = std::min_element(v.begin(), v.end());
-    auto it_max = std::max_element(v.begin(), v.end());
-    std::cout << "Min element: " << *it_min << "\n";
-    std::cout << "Max element: " << *it_max << "\n";
+> **Example:**
+>
+> ```cpp
+> #include <iostream>
+> #include <string>
+> using namespace std;
+> ```
 
-    // minmax_element
-    auto [it1, it2] = std::minmax_element(v.begin(), v.end());
-    std::cout << "minmax_element: (" << *it1 << ", " << *it2 << ")\n";
+> int main() {
+> string sNumber = "12345";
+> int x = stoi(sNumber);       // convert "12345" → 12345
+> double d = stod("3.14159");  // 3.14159
+> cout << "x = " << x << ", d = " << d << "\n";
 
-    // clamp
-    int x = 50;
-    int y = std::clamp(x, 0, 30);
-    std::cout << "clamp(50, 0, 30): " << y << "  (since 50 > 30, returns 30)\n";
+> ```
+> int y = 42;
+> string s = to_string(y);     // "42"
+> cout << "String from int: " << s << "\n";
+> ```
 
-    return 0;
-}
-```
+> ```
+> return 0;
+> ```
+>
+> }
+>
+> ```
+> ```
 
 ---
 
-## 8. Permutations and Combinations
+## 9. Time & Date (`<ctime>`, `<chrono>`)
 
-### 8.1 `next_permutation` / `prev_permutation` / `lexicographical_compare`
+### 9.1 Traditional C API (`<ctime>`)
 
-* **`next_permutation(BidirIt first, BidirIt last)`** — transforms the range into the next lexicographically greater permutation; returns `true` if successful, `false` if it was the last permutation (and transforms into the first).
-* **`prev_permutation(BidirIt first, BidirIt last)`** — transforms into the previous lexicographically ordered permutation.
-* **`lexicographical_compare(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2)`** — returns `true` if the first range is lexicographically less than the second (element-by-element comparison).
+* **Header:**
 
-**Example**
+  ```cpp
+  #include <ctime>
+  ```
+* **Purpose:**
+
+  * `std::time(…)` – get current calendar time (seconds since epoch).
+  * `std::localtime(…)`, `std::gmtime(…)` – convert `time_t` to broken-down local/UTC time.
+  * `std::strftime(buf, size, format, tm*)` – format a `struct tm` into a human-readable string.
+  * `std::difftime(t2, t1)` – difference in seconds between two `time_t` values.
+
+> **Example:**
+>
+> ```cpp
+> #include <iostream>
+> #include <ctime>
+> using namespace std;
+> ```
+
+> int main() {
+> // Get current time
+> time\_t now = time(nullptr);              // seconds since Jan 1, 1970
+> cout << "time\_t value: " << now << "\n";
+
+> ```
+> // Convert to local broken-down time
+> tm* local_tm = localtime(&now);
+> char buffer[80];
+> strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", local_tm);
+> cout << "Local time: " << buffer << "\n";
+> ```
+
+> ```
+> // Convert to UTC
+> tm* utc_tm = gmtime(&now);
+> strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S UTC", utc_tm);
+> cout << "UTC time:   " << buffer << "\n";
+> ```
+
+> ```
+> return 0;
+> ```
+>
+> }
+>
+> ```
+> ```
+
+### 9.2 Modern C++ Chrono (`<chrono>`)
+
+* **Header:**
+
+  ```cpp
+  #include <chrono>
+  ```
+* **Purpose:**
+  Provides type-safe duration and clock types (`std::chrono::system_clock`, `steady_clock`, `high_resolution_clock`), plus utilities for measuring intervals.
+
+> **Example (measuring elapsed time):**
+>
+> ```cpp
+> #include <iostream>
+> #include <chrono>
+> using namespace std;
+> using namespace std::chrono;
+> ```
+
+> int main() {
+> auto start = high\_resolution\_clock::now();
+
+> ```
+> // Do some work
+> long long sum = 0;
+> for (int i = 0; i < 1000000; ++i) {
+>     sum += i;
+> }
+> ```
+
+> ```
+> auto end = high_resolution_clock::now();
+> auto duration = duration_cast<milliseconds>(end - start);
+> ```
+
+> ```
+> cout << "Sum = " << sum << "\n";
+> cout << "Elapsed time: " << duration.count() << " ms\n";
+> return 0;
+> ```
+>
+> }
+>
+> ```
+> ```
+
+---
+
+## 10. Other Common Utility Functions
+
+### 10.1 `<utility>`: `std::pair`, `std::make_pair`, `std::tie`, `std::exchange`
+
+* **Header:**
+
+  ```cpp
+  #include <utility>
+  ```
+* **Purpose:**
+
+  * `std::pair<T1, T2>` – simple struct holding two values of types `T1` and `T2`.
+  * `std::make_pair(a, b)` – deduce types and return a `std::pair`.
+  * `std::tie(...)` – unpack a tuple/pair into separate variables (with references).
+  * `std::exchange(obj, newValue)` – assign `newValue` to `obj` and return the old value. Useful in move-semantics or resetting.
+
+> **Example:**
+>
+> ```cpp
+> #include <iostream>
+> #include <utility>
+> #include <tuple>
+> using namespace std;
+> ```
+
+> int main() {
+> // pair / make\_pair
+> pair\<int, string> p = make\_pair(42, "Answer");
+> cout << "First = " << p.first << ", Second = " << p.second << "\n";
+
+> ```
+> // tie (unpacking)
+> int number;
+> string text;
+> tie(number, text) = p;   // unpack p into number and text
+> cout << "Unpacked: " << number << ", " << text << "\n";
+> ```
+
+> ```
+> // exchange
+> int old = exchange(number, 100);  // sets number=100, returns old value (42)
+> cout << "Old number = " << old << ", New number = " << number << "\n";
+> ```
+
+> ```
+> return 0;
+> ```
+>
+> }
+>
+> ```
+> ```
+
+---
+
+## 11. Dynamic Memory (Preferred C++ Way): `new` / `delete` (operators, not functions)
+
+Though not functions in the `<…>` sense, `new` and `delete` are built-in C++ operators for dynamic allocation.
+
+* **Usage:**
+
+  ```cpp
+  int* p = new int(5);    // allocate one int, initialize to 5
+  delete p;               // free it (must match exactly)
+
+  double* arr = new double[10];  // allocate array of 10 doubles
+  delete[] arr;                  // free array (note [] here)
+  ```
+
+> **Example:**
+>
+> ```cpp
+> #include <iostream>
+> using namespace std;
+> ```
+
+> int main() {
+> // Single object
+> int\* ptr = new int(123);
+> cout << "\*ptr = " << \*ptr << "\n";
+> delete ptr;
+
+> ```
+> // Array of objects
+> int n = 5;
+> int* arr = new int[n];
+> for (int i = 0; i < n; ++i) {
+>     arr[i] = (i + 1) * 10;
+> }
+> cout << "arr: ";
+> for (int i = 0; i < n; ++i) {
+>     cout << arr[i] << " ";
+> }
+> cout << "\n";
+> delete[] arr;  // always use delete[] for arrays
+> return 0;
+> ```
+>
+> }
+>
+> ```
+> ```
+
+---
+
+## 12. Summary of Headers & Key Functions
+
+Below is a concise reference table (not exhaustive) of headers you’ll most often need, along with a few key functions from each:
+
+| Header        | Key Functions/Classes                                                                                                                                                     |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `<iostream>`  | `std::cout`, `std::cin`, `std::cerr`, `std::clog`, `std::endl`, `std::getline`                                                                                            |
+| `<fstream>`   | `std::ifstream`, `std::ofstream`, `std::fstream`                                                                                                                          |
+| `<string>`    | `std::string`, `std::getline`, `std::to_string`, `std::stoi` / `std::stod`                                                                                                |
+| `<cstring>`   | `std::strlen`, `std::strcpy`, `std::strncpy`, `std::strcat`, `std::strcmp`, `std::strstr`, `std::memset`, `std::memcpy`, `std::memmove`                                   |
+| `<cctype>`    | `std::isalpha`, `std::isdigit`, `std::isalnum`, `std::isspace`, `std::toupper`, `std::tolower`                                                                            |
+| `<cmath>`     | `std::abs`, `std::ceil`, `std::floor`, `std::round`, `std::sqrt`, `std::pow`, `std::exp`, `std::log`, `std::log10`, `std::sin`, `std::cos`, `std::tan`, `std::sinh` etc.  |
+| `<cstdlib>`   | `std::malloc`, `std::calloc`, `std::realloc`, `std::free`, `std::exit`, `std::atoi`, `std::atof`, `std::strtol` / `std::strtod`, `std::rand`, `std::srand`                |
+| `<algorithm>` | `std::sort`, `std::reverse`, `std::find`, `std::count`, `std::accumulate` (from `<numeric>`), `std::binary_search`, `std::lower_bound`, `std::upper_bound`, `std::remove` |
+| `<utility>`   | `std::pair`, `std::make_pair`, `std::swap`, `std::tie`, `std::exchange`                                                                                                   |
+| `<vector>`    | Container methods: `.push_back()`, `.pop_back()`, `.size()`, `.empty()`, `.clear()`, `.insert()`, `.erase()`, `.begin()`, `.end()`, `.capacity()`, `.reserve()`           |
+| `<map>`       | `std::map<Key,Value>`, methods: `.insert()`, `.find()`, `.erase()`, `.operator[]`, `.begin()`, `.end()`                                                                   |
+| `<set>`       | `std::set<Value>`, methods: `.insert()`, `.find()`, `.erase()`, `.begin()`, `.end()`                                                                                      |
+| `<chrono>`    | `std::chrono::high_resolution_clock`, `std::chrono::system_clock`, `std::chrono::duration_cast`, `std::chrono::milliseconds`, `std::chrono::seconds`                      |
+| `<ctime>`     | `std::time`, `std::localtime`, `std::gmtime`, `std::strftime`, `std::difftime`                                                                                            |
+
+---
+
+### Tips on When to Use Which Category
+
+1. **Basic console I/O:** `<iostream>`, `std::cout`, `std::cin`, `std::getline`.
+2. **File I/O:** `<fstream>` (if you need to read/write files).
+3. **Math-heavy code:** `<cmath>` (e.g., `sin`, `cos`, `sqrt`, `pow`).
+4. **String/character processing:**
+
+   * If using `std::string`, stick with string member functions (`.length()`, `.substr()`, `.find()`, etc.) and free functions `<string>` offers (`std::stoi`, `std::to_string`).
+   * If you must interoperate with C-style strings (`char[]`), use `<cstring>` (`strlen`, `strcpy`, `strcat`, `strcmp`, etc.) and `<cctype>` (`isalpha`, `isdigit`, `toupper`, `tolower`, etc.).
+5. **Raw memory or legacy C code:** `<cstdlib>`’s `malloc`/`free`/`realloc`.
+6. **Generic algorithms on containers:** `<algorithm>` + `<numeric>`. If you store elements in a `std::vector`, `std::deque`, or `std::string`, you can apply `std::sort`, `std::find`, `std::count`, `std::accumulate`, etc., to them.
+7. **Time measurement:** `<chrono>` (modern C++, type-safe) vs. `<ctime>` (C-style).
+8. **Containers (STL):** Each container has its own header: `<vector>`, `<list>`, `<deque>`, `<map>`, `<unordered_map>`, `<set>`, `<queue>`, `<stack>`, `<array>`. You typically use their member functions (e.g., `push_back`, `emplace`, `insert`, `erase`, etc.).
+
+---
+
+## 13. Putting It All Together: A Larger Example
+
+Below is a small program that touches on several built-in functions across different headers, just to illustrate how they fit together.
 
 ```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
+#include <iostream>     // cout, cin
+#include <string>       // std::string, getline, stoi, to_string
+#include <vector>       // std::vector
+#include <algorithm>    // sort, count
+#include <iomanip>      // std::fixed, std::setprecision
+#include <cmath>        // sqrt, pow
+#include <ctime>        // time, localtime, strftime
+using namespace std;
 
 int main() {
-    std::vector<int> v = {1, 2, 3};
+    cout << "=== C++ Built-in Functions Demo ===\n\n";
 
-    // 1) next_permutation
-    std::cout << "Permutations of {1,2,3}:\n";
-    do {
-        for (int x : v) std::cout << x;
-        std::cout << "\n";
-    } while (std::next_permutation(v.begin(), v.end()));
-    // After the last permutation, v resets to {1,2,3}
-
-    // 2) prev_permutation
-    std::cout << "Previous permutation of {1,2,3} (wraps to last): ";
-    bool has_prev = std::prev_permutation(v.begin(), v.end());
-    // Since v is back to {1,2,3}, prev_permutation yields {3,2,1}
-    if (has_prev) {
-        for (int x : v) std::cout << x;
+    // 1) Get user input as a line, then convert to an integer
+    cout << "Enter the number of elements you want (integer): ";
+    string line;
+    getline(cin, line);
+    int n = 0;
+    try {
+        n = stoi(line);                // std::stoi from <string>
+    } catch (...) {
+        cerr << "Invalid number, defaulting to 5.\n";
+        n = 5;
     }
-    std::cout << "\n";
 
-    // 3) lexicographical_compare
-    std::vector<char> a = {'a', 'b', 'c'};
-    std::vector<char> b = {'a', 'b', 'd'};
-    bool lex_less = std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end());
-    std::cout << "{a,b,c} < {a,b,d}? " << (lex_less ? "Yes" : "No") << "\n";
+    // 2) Fill a vector with squares of indices using <vector> + <cmath>
+    vector<double> data;
+    for (int i = 1; i <= n; ++i) {
+        data.push_back(pow(i, 2));     // pow(x,y) from <cmath>
+    }
 
-    return 0;
-}
-```
+    // 3) Sort the vector (though it is already sorted here)
+    sort(data.begin(), data.end());   // std::sort from <algorithm>
 
-> **Note:** The standard `<algorithm>` does **not** provide `next_combination` or `prev_combination`; those must be implemented by the user or obtained from a non‐standard library.
+    // 4) Print the sorted data with fixed precision
+    cout << fixed << setprecision(2); // from <iomanip>
+    cout << "Squares of 1 through " << n << ": ";
+    for (double x : data) {
+        cout << x << " ";
+    }
+    cout << "\n";
 
----
+    // 5) Compute average using <numeric> (accumulate)
+    double sum = accumulate(data.begin(), data.end(), 0.0); // #include <numeric>
+    double avg = sum / n;
+    cout << "Average of those squares: " << avg << "\n";
 
-## 9. Miscellaneous Utilities
+    // 6) Count how many squares exceed a threshold
+    double threshold = 10.0;
+    int countHigh = count_if(data.begin(), data.end(), [threshold](double v) {
+        return v > threshold;         // lambda + <algorithm>::count_if
+    });
+    cout << "Number of squares > " << threshold << ": " << countHigh << "\n";
 
-### 9.1 `iota`
-
-* **`iota(ForwardIt first, ForwardIt last, T value)`** (since C++11) — assigns sequentially increasing values starting from `value` to each element in `[first, last)`.
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-int main() {
-    std::vector<int> v(5);
-    std::iota(v.begin(), v.end(), 10);
-    // v = {10, 11, 12, 13, 14}
-    std::cout << "After iota starting at 10: ";
-    for (int x : v) std::cout << x << " ";
-    std::cout << "\n";
-
-    return 0;
-}
-```
-
----
-
-### 9.2 `is_sorted` / `is_sorted_until`
-
-* **`is_sorted(ForwardIt first, ForwardIt last)`** (since C++11) — returns `true` if `[first, last)` is in non-decreasing order.
-* **`is_sorted_until(ForwardIt first, ForwardIt last)`** (since C++11) — returns the first iterator that breaks the sorting order (i.e., first element where `*it < *(it−1)`).
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-int main() {
-    std::vector<int> a = {1, 2, 3, 5, 4, 6};
-    bool sorted_a = std::is_sorted(a.begin(), a.end());
-    std::cout << "a is sorted? " << (sorted_a ? "Yes" : "No") << "\n";
-
-    auto it_bad = std::is_sorted_until(a.begin(), a.end());
-    std::cout << "First unsorted element at index " << std::distance(a.begin(), it_bad) 
-              << " (value " << *it_bad << ")\n";
-
-    std::vector<int> b = {1, 2, 3, 4, 5};
-    std::cout << "b is sorted? " << (std::is_sorted(b.begin(), b.end()) ? "Yes" : "No") << "\n";
+    // 7) Print current local time (C style)
+    time_t now = time(nullptr);        // <ctime>
+    char tbuf[64];
+    strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S", localtime(&now));
+    cout << "Current Local Time: " << tbuf << "\n";
 
     return 0;
 }
 ```
 
----
+**Key built-in functions used in the example:**
 
-### 9.3 `all_of` / `any_of` / `none_of`
-
-* **`all_of(InputIt first, InputIt last, UnaryPredicate p)`** (since C++11) — returns `true` if **all** elements satisfy `p`.
-* **`any_of(InputIt first, InputIt last, UnaryPredicate p)`** (since C++11) — returns `true` if **any** element satisfies `p`.
-* **`none_of(InputIt first, InputIt last, UnaryPredicate p)`** (since C++11) — returns `true` if **none** of the elements satisfy `p`.
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-bool is_positive(int x) { return x > 0; }
-
-int main() {
-    std::vector<int> v = {1, 2, 3, -4, 5};
-
-    std::cout << "All positive? " << (std::all_of(v.begin(), v.end(), is_positive) ? "Yes" : "No") << "\n";
-    std::cout << "Any negative? " << (std::any_of(v.begin(), v.end(), [](int x){ return x < 0; }) ? "Yes" : "No") << "\n";
-    std::cout << "None zero? " << (std::none_of(v.begin(), v.end(), [](int x){ return x == 0; }) ? "Yes" : "No") << "\n";
-
-    return 0;
-}
-```
+* `std::getline` (getline user input)
+* `std::stoi` (convert string → int)
+* `std::vector::push_back` (append to vector)
+* `std::pow` (square computation)
+* `std::sort` (sort a `std::vector<double>`)
+* `std::accumulate` (sum elements, from `<numeric>`)
+* `std::count_if` (count elements via a predicate, from `<algorithm>`)
+* `std::time`, `std::localtime`, `std::strftime` (get and format current time, from `<ctime>`)
 
 ---
 
-### 9.4 `is_permutation`
+### Conclusion
 
-* **`is_permutation(ForwardIt1 first1, ForwardIt1 last1, ForwardIt2 first2)`** — returns `true` if the range `[first1, last1)` is a permutation of the range starting at `first2` (same length). Overloads allow supplying an end iterator or a custom predicate.
+This guide has covered:
 
-**Example**
+1. **Basic console and file I/O** (`<iostream>`, `<fstream>`).
+2. **Mathematical operations** (`<cmath>`).
+3. **Character classification & transformations** (`<cctype>`).
+4. **C-string manipulation & memory routines** (`<cstring>`, `<cstdlib>`).
+5. **General utility/conversion functions** (`std::atoi`, `std::exit`, `std::swap`, etc.).
+6. **Common generic algorithms** (`<algorithm>`, `<numeric>`).
+7. **Container member functions** (`<vector>`, `<string>`, `<map>`, `<set>`, etc.).
+8. **Time/date functions** (`<ctime>`, `<chrono>`).
 
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-
-int main() {
-    std::vector<int> a = {1, 3, 2, 4};
-    std::vector<int> b = {4, 2, 1, 3};
-
-    std::cout << "a is a permutation of b? "
-              << (std::is_permutation(a.begin(), a.end(), b.begin()) ? "Yes" : "No") << "\n";
-
-    std::vector<int> c = {1, 2, 2, 3};
-    std::vector<int> d = {2, 1, 3, 2};
-
-    std::cout << "c is a permutation of d? "
-              << (std::is_permutation(c.begin(), c.end(), d.begin()) ? "Yes" : "No") << "\n";
-
-    return 0;
-}
-```
-
----
-
-### 9.5 `sample`
-
-* **`sample(InputIt first, InputIt last, SampleOutputIterator out, typename iterator_traits<InputIt>::difference_type n, URBG&& g)`** (since C++17) — selects `n` random elements from `[first, last)` without replacement, writing to the output iterator `out`, using uniform random bit generator `g`.
-
-**Example**
-
-```cpp
-#include <algorithm>
-#include <iostream>
-#include <vector>
-#include <random>
-
-int main() {
-    std::vector<int> v = {10, 20, 30, 40, 50, 60};
-    std::vector<int> result;
-    result.reserve(3);
-
-    std::mt19937 rng(42); // deterministic seed
-    std::sample(v.begin(), v.end(), std::back_inserter(result), 3, rng);
-
-    std::cout << "Random sample of 3 elements: ";
-    for (int x : result) std::cout << x << " ";
-    std::cout << "\n";
-
-    return 0;
-}
-```
-
----
-
-## 10. Deprecated or Removed
-
-* **`random_shuffle`**
-
-  ```cpp
-  template<class RandomIt>
-  void random_shuffle(RandomIt first, RandomIt last);
-  template<class RandomIt, class RandomFunc>
-  void random_shuffle(RandomIt first, RandomIt last, RandomFunc&& r);
-  ```
-
-  * Removed in C++17. Use `std::shuffle` instead.
-
----
-
-## 11. Flat List of All `<algorithm>` Functions
-
-Below is a concise list of all functions (names only), including overloads for ranges, predicates, and (when applicable) custom comparators. Execution-policy overloads exist for most sequence and sorting algorithms (omitted here for brevity).
-
-```
-for_each
-find
-find_if
-find_if_not
-find_end
-find_first_of
-adjacent_find
-count
-count_if
-mismatch
-equal
-search
-search_n
-
-copy
-copy_if
-copy_n
-copy_backward
-move
-move_backward
-swap_ranges
-iter_swap
-transform
-
-replace
-replace_if
-replace_copy
-replace_copy_if
-
-fill
-fill_n
-generate
-generate_n
-
-remove
-remove_if
-remove_copy
-remove_copy_if
-
-unique
-unique_copy
-
-reverse
-reverse_copy
-
-rotate
-rotate_copy
-
-shuffle
-
-partition
-stable_partition
-partition_copy
-partition_point
-is_partitioned
-
-make_heap
-push_heap
-pop_heap
-sort_heap
-is_heap
-is_heap_until
-
-sort
-stable_sort
-partial_sort
-partial_sort_copy
-nth_element
-
-lower_bound
-upper_bound
-binary_search
-equal_range
-
-merge
-inplace_merge
-includes
-set_union
-set_intersection
-set_difference
-set_symmetric_difference
-
-min
-max
-minmax
-min_element
-max_element
-minmax_element
-clamp
-
-next_permutation
-prev_permutation
-lexicographical_compare
-lexicographical_compare_three_way
-
-is_permutation
-
-is_sorted
-is_sorted_until
-
-all_of
-any_of
-none_of
-
-iota
-
-sample
-```
-
----
+Feel free to refer to each header’s documentation (e.g., cppreference.com) for an exhaustive list of functions. However, the ones shown above form the core set you’ll use day-to-day in most C++ programs. If you need deeper coverage (e.g., `<iterator>`, `<functional>`, `<thread>`, `<mutex>`, etc.), let me know!
