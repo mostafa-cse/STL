@@ -1,7 +1,11 @@
 
 ## Table of Contents
-
-1. [Non-Modifying Sequence Operations](#1-non-modifying-sequence-operations)
+Builtin Function(define in algorithm headerfile)
+├── 1. [Non-Modifying Sequence Operations](#1-non-modifying-sequence-operations)
+|      ├── [1.1 for_each](#1-1-for_each)
+|      ├──
+    
+|
 2. [Modifying Sequence Operations](#2-modifying-sequence-operations)  
 3. [Heap Operations](#3-heap-operations)  
 4. [Sorting and Related Operations](#4-sorting-and-related-operations)  
