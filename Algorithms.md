@@ -2,8 +2,8 @@
 ## Table of Contents
 Builtin Function(define in algorithm headerfile)
 ├── 1. [Non-Modifying Sequence Operations](#1-non-modifying-sequence-operations)
-|      ├── [1.1 for_each](#1-1-for_each)
-|      ├──
+<br> |      ├── [1.1 for_each](#11-for_each)
+<br> |      ├──
     
 |
 2. [Modifying Sequence Operations](#2-modifying-sequence-operations)  
