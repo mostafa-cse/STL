@@ -1,7 +1,7 @@
 
 ## Table of Contents
 
-1. [Non-Modifying Sequence Operations](#non-modifying-sequence-operations)  
+1. [Non-Modifying Sequence Operations](#1.non-modifying-sequence-operations)
 2. [Modifying Sequence Operations](#modifying-sequence-operations)  
 3. [Heap Operations](#heap-operations)  
 4. [Sorting and Related Operations](#sorting-and-related-operations)  
